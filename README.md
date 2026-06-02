@@ -51,7 +51,8 @@ Project Lead: Wagari Mosisa
 Email: wagari.mosisa@ju.edu.et
 LinkedIn: https://www.linkedin.com/in/wagari-mosisa-phd-9b50ab85/
 GitHub: wagarimosisa
-Project Repository: https://github.com/wagarimosisa/aquavolc
-Slack Community: Request an invite
+Project Repository: https://github.com/wagarimosisa-jit/aquavolc
+
+Let us change something together!
 
 
