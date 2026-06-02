@@ -45,7 +45,7 @@ I welcome contributions from **developers, hydrogeologists, data scientists, and
    git clone https://github.com/wagarimosisa-jit/aquavolc.git
    cd aquavolc
 
-   Contact & Support
+**Contact & Support**
 Have questions or ideas? I’d love to hear from you!
 Project Lead: Wagari Mosisa
 Email: wagari.mosisa@ju.edu.et
