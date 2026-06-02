@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AquaVolc | Web-Based Groundwater Modeling for Volcanic Aquifers</title>
+    <meta name="description" content="AquaVolc is the first open-source, web-based tool for modeling volcanic aquifers. Enforces GPS, handles single-well tests, and automates lithology parsing with NLP.">
+    <style>
+        /* ===== RESET & BASE STYLES ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #374151;
+            background-color: #f9fafb;
+        }
+        a {
+            color: #2563eb;
+            text-decoration: none;
+        }
+        a:hover {
+            color: #1d4ed8;
+            text-decoration: underline;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* ===== LAYOUT ===== */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* ===== HEADER ===== */
+        header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .logo-icon {
+            font-size: 3rem;
+            margin-right: 10px;
+        }
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+        .header-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s;
+        }
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        .btn-primary {
+            background: white;
+            color: #1e3a8a;
+        }
+        .btn-primary:hover {
+            background: #f0f9ff;
+        }
+
+        /* ===== SECTIONS ===== */
+        .section {
+            margin-bottom: 50px;
+            padding: 40px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .section-title {
+            color: #1e40af;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        .section-title-icon {
+            margin-right: 10px;
+        }
+
+        /* ===== GRID LAYOUT ===== */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .card-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #3b82f6;
+        }
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #111827;
+        }
+
+        /* ===== TABLES ===== */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        th {
+            background: #f9fafb;
+            font-weight: 600;
+            color: #374151;
+        }
+        tr:hover {
+            background: #f9fafb;
+        }
+
+        /* ===== BADGES ===== */
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+        .badge-feature {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        .badge-status {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .badge-status.planned {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* ===== MERMAID DIAGRAM ===== */
+        .mermaid {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: #f9fafb;
+            border-radius: 8px;
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            background: #1e293b;
+            color: #94a3b8;
+            margin-top: 50px;
+        }
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .footer-links a {
+            color: #cbd5e1;
+        }
+        .footer-links a:hover {
+            color: #ffffff;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            header {
+                padding: 40px 20px;
+            }
+            .logo {
+                font-size: 2rem;
+            }
+            .header-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            .section {
+                padding: 20px;
+            }
+        }
+    </style>
+    <!-- Mermaid JS for diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true});</script>
+</head>
+<body>
+    <!-- ===== HEADER ===== -->
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <span class="logo-icon">🌊</span>AquaVolc
+            </div>
+            <p class="subtitle">
+                Web-Based Automated Groundwater Modeling System for Volcanic Aquifers
+            </p>
+            <div class="header-buttons">
+                <a href="https://github.com/wagarimosisa-jit/aquavolc" class="btn">View on GitHub</a>
+                <a href="https://github.com/wagarimosisa-jit/aquavolc/blob/main/CONTRIBUTING.md" class="btn">Contribute</a>
+                <a href="mailto:wagari.mosisa@ju.edu.et" class="btn btn-primary">Contact Us</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- ===== QUICK NAVIGATION ===== -->
+        <div class="section">
+            <h2 class="section-title">
+                <span class="section-title-icon">📌</span>Quick Navigation
+            </h2>
+            <div class="grid">
+                <div class="card">
+                    <div class="card-icon">📖</div>
+                    <div class="card-title">Documentation</div>
+                    <p>User guides, tutorials, and API documentation.</p>
+                    <a href="https://github.com/wagarimosisa-jit/aquavolc/wiki">Learn More →</a>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🤝</div>
+                    <div class="card-title">Contribute</div>
+                    <p>Help us build AquaVolc! No experience needed.</p>
+                    <a href="https://github.com/wagarimosisa-jit/aquavolc/blob/main/CONTRIBUTING.md">Get Started →</a>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🐛</div>
+                    <div class="card-title">Report a Bug</div>
+                    <p>Found an issue? Let us know!</p>
+                    <a href="https://github.com/wagarimosisa-jit/aquavolc/issues/new/choose">Open Issue →</a>
+                </div>
+                <div class="card">
+                    <div class="card-icon">💬</div>
+                    <div class="card-title">Join Community</div>
+                    <p>Connect with other contributors.</p>
+                    <a href="mailto:wagari.mosisa@ju.edu.et?subject=Slack%20Invite%20for%20AquaVolc">Request Slack Invite →</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== WHY AQUAVOLC ===== -->
+        <div class="section">
+            <h2 class="section-title">
+                <span class="section-title-icon">🌍</span>Why AquaVolc?
+            </h2>
+            <h3>The Problem with Volcanic Aquifers</h3>
+            <p>
+                Volcanic aquifers supply <strong>drinking water to over 200 million people globally</strong>, yet they remain
+                <strong>among the most challenging hydrogeological systems</strong> to model due to:
+            </p>
+            <ul>
+                <li><strong>Fracture-Controlled Flow:</strong> Transmissivity can vary by <strong>2–3 orders of magnitude</strong> over short distances (e.g., &lt;100 meters).</li>
+                <li><strong>Extreme Spatial Heterogeneity:</strong> Interbedded layers of lava, tuff, ash, and clay create <strong>highly variable hydraulic properties</strong>.</li>
+                <li><strong>Limited Data Availability:</strong> In developing countries, <strong>80% of pumping test data is discarded</strong> because it lacks observation wells.</li>
+            </ul>
+
+            <h3>Why Existing Tools Fail</h3>
+            <p>
+                Current groundwater modeling tools (e.g., MODFLOW, INOWAS, HydroShare) <strong>do not address these challenges</strong> because they:
+            </p>
+            <table>
+                <tr>
+                    <th>Limitation</th>
+                    <th>Impact</th>
+                </tr>
+                <tr>
+                    <td>❌ No GPS enforcement</td>
+                    <td><strong>Spatial errors</strong> in data, leading to incorrect models</td>
+                </tr>
+                <tr>
+                    <td>❌ No single-well test support</td>
+                    <td><strong>80% of data is wasted</strong> (most common test type in developing countries)</td>
+                </tr>
+                <tr>
+                    <td>❌ Require expert knowledge</td>
+                    <td><strong>Inaccessible</strong> to engineers in developing countries</td>
+                </tr>
+                <tr>
+                    <td>❌ Expensive/proprietary</td>
+                    <td><strong>Unaffordable</strong> for governments and NGOs</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- ===== CORE FEATURES ===== -->
+        <div class="section">
+            <h2 class="section-title">
+                <span class="section-title-icon">✨</span>Core Features
+            </h2>
+            <p>
+                AquaVolc is the <strong>first open-source, web-based platform</strong> designed <strong>specifically for volcanic aquifers</strong>.
+                Here’s how it solves the problem:
+            </p>
+            <table>
+                <tr>
+                    <th>Feature</th>
+                    <th>Description</th>
+                    <th>Status</th>
+                </tr>
+                <tr>
+                    <td>📍 <strong>GPS Enforcement</strong></td>
+                    <td>Every data upload <strong>requires latitude, longitude, and elevation</strong></td>
+                    <td><span class="badge badge-status">✅ Implemented</span></td>
+                </tr>
+                <tr>
+                    <td>🌍 <strong>Google Earth Integration</strong></td>
+                    <td><strong>Real-time verification</strong> of well locations on satellite imagery</td>
+                    <td><span class="badge badge-status">✅ Implemented</span></td>
+                </tr>
+                <tr>
+                    <td>📊 <strong>Single-Well Pumping Tests</strong></td>
+                    <td>Estimates <strong>transmissivity (T)</strong> from <strong>specific capacity (SC)</strong> using:<br>
+                        <code>log₁₀(T) = 0.98 × log₁₀(SC) – 0.06</code> <em>(R² = 0.89, validated on Jimma dataset, Ethiopia)</em>
+                    </td>
+                    <td><span class="badge badge-status">✅ Implemented</span></td>
+                </tr>
+                <tr>
+                    <td>🔬 <strong>Multi-Well Tests</strong></td>
+                    <td>Supports <strong>≥2 observation wells</strong>, each with GPS coordinates</td>
+                    <td><span class="badge badge-status">⏳ In Progress</span></td>
+                </tr>
+                <tr>
+                    <td>📚 <strong>20+ Analytical Solutions</strong></td>
+                    <td>Theis, Cooper-Jacob, Hantush-Jacob, Neuman, Warren-Root, Kazemi, etc.</td>
+                    <td><span class="badge badge-status">⏳ In Progress</span></td>
+                </tr>
+                <tr>
+                    <td>🤖 <strong>Automatic Solution Detection</strong></td>
+                    <td>Hybrid <strong>rule-based + Random Forest ML</strong> (trained on 10,000 synthetic tests)</td>
+                    <td><span class="badge badge-status planned">⬜ Planned</span></td>
+                </tr>
+                <tr>
+                    <td>📝 <strong>NLP Lithology Parsing</strong></td>
+                    <td>Converts <strong>free-text drilling logs</strong> into structured aquifer/aquitard layers</td>
+                    <td><span class="badge badge-status planned">⬜ Planned</span></td>
+                </tr>
+                <tr>
+                    <td>🗺️ <strong>Web-Based Kriging</strong></td>
+                    <td>Temporal and spatial interpolation using <strong>GPS coordinates</strong></td>
+                    <td><span class="badge badge-status planned">⬜ Planned</span></td>
+                </tr>
+                <tr>
+                    <td>📈 <strong>20+ Graphical Outputs</strong></td>
+                    <td>Piezometric maps, type curves, water balance diagrams, 3D parameter cubes</td>
+                    <td><span class="badge badge-status planned">⬜ Planned</span></td>
+                </tr>
+                <tr>
+                    <td>📄 <strong>High-Resolution Exports</strong></td>
+                    <td><strong>600 DPI PNG, SVG vector graphics, PDF reports</strong></td>
+                    <td><span class="badge badge-status planned">⬜ Planned</span></td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- ===== SCREENSHOTS (PLACEHOLDERS) ===== -->
+        <div class="section">
+            <h2 class="section-title">
+                <span class="section-title-icon">🖼️</span>Screenshots (Conceptual Mockups)
+            </h2>
+            <p><em>We’ll replace these with real screenshots as we develop!</em></p>
+            <div class="grid">
+                <div class="card">
+                    <img src="https://via.placeholder.com/600x400/1e40af/ffffff?text=Upload+Interface" alt="Upload Interface Mockup">
+                    <div class="card-title">Data Upload Interface</div>
+                    <p>Drag-and-drop Excel files or shapefiles, verify GPS on Google Earth, and edit coordinates.</p>
+                </div>
+                <div class="card">
+                    <img src="https://via.placeholder.com/600x400/1e40af/ffffff?text=Pumping+Test+Analysis" alt="Pumping Test Analysis Mockup">
+                    <div class="card-title">Pumping Test Analysis</div>
+                    <p>Visualize drawdown data, derivative curves, and type curve matching for 20+ solutions.</p>
+                </div>
+                <div class="card">
+                    <img src="https://via.placeholder.com/600x400/1e40af/ffffff?text=Piezometric+Map" alt="Piezometric Map Mockup">
+                    <div class="card-title">Piezometric Map</div>
+                    <p>Interactive map with well locations, contours, and GPS-based spatial analysis.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== TECH STACK ===== -->
+        <div class="section">
+            <h2 class="section-title">
+                <span class="section-title-icon">🛠️</span>Tech Stack
+            </h2>
+            <p><strong>The tools and technologies powering AquaVolc:</strong></p>
+            <table>
+                <tr>
+                    <th>Component</th>
+                    <th>Technology</th>
+                    <th>Purpose</th>
+                </tr>
+                <tr>
+                    <td>🌐 Frontend</td>
+                    <td>React 18 + TypeScript</td>
+                    <td>User interface, maps, visualizations</td>
+                </tr>
+                <tr>
+                    <td>🗺️ Mapping</td>
+                    <td>Google Earth API + Google Maps JS API</td>
+                    <td>GPS validation, satellite imagery</td>
+                </tr>
+                <tr>
+                    <td>🎨 3D Visualization</td>
+                    <td>Three.js + Deck.gl</td>
+                    <td>3D parameter cubes, cross-sections</td>
+                </tr>
+                <tr>
+                    <td>🐍 Backend</td>
+                    <td>FastAPI (Python 3.11)</td>
+                    <td>REST API, data processing</td>
+                </tr>
+                <tr>
+                    <td>🤖 NLP</td>
+                    <td>spaCy 3.7 + Custom Model</td>
+                    <td>Lithology log parsing</td>
+                </tr>
+                <tr>
+                    <td>📊 Excel Parsing</td>
+                    <td>pandas + openpyxl</td>
+                    <td>Multi-sheet Excel uploads</td>
+                </tr>
+                <tr>
+                    <td>🗺️ Shapefiles</td>
+                    <td>GDAL, Fiona, Shapely, Rasterio</td>
+                    <td>.shp, .shx, .dbf, .prj handling</td>
+                </tr>
+                <tr>
+                    <td>➕ Numerical</td>
+                    <td>NumPy, SciPy</td>
+                    <td>Pumping test calculations</td>
+                </tr>
+                <tr>
+                    <td>📈 ML</td>
+                    <td>scikit-learn (Random Forest)</td>
+                    <td>Automatic solution detection</td>
+                </tr>
+                <tr>
+                    <td>📍 Interpolation</td>
+                    <td>PyKrige, GSTools</td>
+                    <td>Kriging with GPS coordinates</td>
+                </tr>
+                <tr>
+                    <td>🗃️ Database</td>
+                    <td>PostgreSQL 15 + PostGIS 3.3</td>
+                    <td>Spatial queries, GPS indexing</td>
+                </tr>
+                <tr>
+                    <td>⚡ Task Queue</td>
+                    <td>Celery + Redis</td>
+                    <td>Async job processing</td>
+                </tr>
+                <tr>
+                    <td>💾 File Storage</td>
+                    <td>MinIO (S3-compatible)</td>
+                    <td>Large file storage</td>
+                </tr>
+                <tr>
+                    <td>🐳 Containerization</td>
+                    <td>Docker</td>
+                    <td>Reproducible deployment</td>
+                </tr>
+                <tr>
+                    <td>☁️ Cloud</td>
+                    <td>AWS/Google Cloud</td>
+                    <td>Scalable hosting</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- ===== ROADMAP ===== -->
+        <div class="section">
+            <h2 class="section-title">
+                <span class="section-title-icon">🎯</span>Development Roadmap
+            </h2>
+            <p><strong>Our timeline for building AquaVolc:</strong></p>
+            <div class="mermaid">
+                gantt
+                    title AquaVolc Development Roadmap
+                    dateFormat  YYYY-MM-DD
+                    section Phase 0: Setup
+                    Create GitHub Repo          :a1, 2026-06-02, 1d
+                    Set Up README               :a2, after a1, 1d
+                    section Phase 1: MVP (3 Months)
+                    GPS Enforcement             :b1, 2026-06-03, 7d
+                    Google Earth Integration    :b2, after b1, 7d
+                    Excel Upload                :b3, 2026-06-03, 7d
+                    Theis Solution              :b4, 2026-06-10, 7d
+                    Cooper-Jacob Solution       :b5, 2026-06-10, 7d
+                    Basic Frontend Form         :b6, 2026-06-17, 14d
+                    section Phase 2: Core Features (3 Months)
+                    Multi-Well Tests            :c1, 2026-07-01, 14d
+                    All 20+ Solutions           :c2, after c1, 30d
+                    NLP Lithology Parsing       :c3, 2026-07-15, 14d
+                    ML Solution Detection       :c4, 2026-08-01, 14d
+                    PostGIS Database            :c5, 2026-07-01, 14d
+                    section Phase 3: Advanced (2 Months)
+                    Web-Based Kriging           :d1, 2026-09-01, 14d
+                    3D Visualization            :d2, after d1, 14d
+                    High-Res Exports            :d3, 2026-09-15, 14d
+                    section Phase 4: Launch (1 Month)
+                    Beta Testing                :e1, 2026-10-01, 14d
+                    Public Launch               :e2, after e1, 7d
+                    Marketing                   :e3, 2026-10-15, 7d
+            </div>
+        </div>
+
+        <!-- ===== HOW TO CONTRIBUTE ===== -->
+        <div class="section">
+            <h2 class="section-title">
+                <span class="section-title-icon">🤝</span>How to Contribute
+            </h2>
+            <p>
+                We welcome <strong>developers, hydrogeologists, and data scientists</strong>!
+                No prior experience required—we’ll guide you.
+            </p>
+
+            <h3>💻 For Developers</h3>
+            <p><strong>No hydrogeology knowledge needed!</strong> We provide all the scientific details.</p>
+            <ol>
+                <li><strong>Fork the repository:</strong>
+                    <a href="https://github.com/wagarimosisa-jit/aquavolc/fork">Click here to fork</a>.
+                </li>
+                <li><strong>Clone your fork:</strong>
+                    <pre><code>git clone https://github.com/YOUR_USERNAME/aquavolc.git
+cd aquavolc</code></pre>
+                    <em>(Replace <code>YOUR_USERNAME</code> with your GitHub username.)</em>
+                </li>
+                <li><strong>Create a feature branch:</strong>
+                    <pre><code>git checkout -b feature/your-feature-name</code></pre>
+                    <em>Example branch names:</em>
+                    <ul>
+                        <li><code>feature/theis-solution</code></li>
+                        <li><code>feature/excel-parser</code></li>
+                        <li><code>feature/google-earth-integration</code></li>
+                    </ul>
+                </li>
+                <li><strong>Set up the project:</strong> See our
+                    <a href="https://github.com/wagarimosisa-jit/aquavolc/blob/main/CONTRIBUTING.md">CONTRIBUTING.md</a> guide.
+                </li>
+                <li><strong>Pick a task:</strong> Browse our
+                    <a href="https://github.com/wagarimosisa-jit/aquavolc/issues">GitHub Issues</a>.
+                    <strong>Beginner-friendly issues</strong> are labeled <code>good first issue</code>.
+                </li>
+                <li><strong>Make your changes</strong> and test locally.</li>
+                <li><strong>Commit your changes:</strong>
+                    <pre><code>git add .
+git commit -m "Add your descriptive message here"</code></pre>
+                    <em>Example:</em> <code>git commit -m "Implement Theis solution in FastAPI"</code>
+                </li>
+                <li><strong>Push to your fork:</strong>
+                    <pre><code>git push origin feature/your-feature-name</code></pre>
+                </li>
+                <li><strong>Open a Pull Request:</strong>
+                    <a href="https://github.com/wagarimosisa-jit/aquavolc/pulls">Click here</a> to create a PR.
+                </li>
+            </ol>
+
+            <h4>📌 Good First Issues for Developers:</h4>
+            <table>
+                <tr>
+                    <th>Task</th>
+                    <th>Description</th>
+                    <th>Estimated Time</th>
+                    <th>Difficulty</th>
+                </tr>
+                <tr>
+                    <td><a href="https://github.com/wagarimosisa-jit/aquavolc/issues/1">Implement Theis Solution</a></td>
+                    <td>Add the Theis (1935) analytical solution in Python</td>
+                    <td>3–5 days</td>
+                    <td>⭐⭐</td>
+                </tr>
+                <tr>
+                    <td><a href="https://github.com/wagarimosisa-jit/aquavolc/issues/2">Add Excel Parsing</a></td>
+                    <td>Parse Excel files for well data (lithology, pumping tests)</td>
+                    <td>5–7 days</td>
+                    <td>⭐⭐</td>
+                </tr>
+                <tr>
+                    <td><a href="https://github.com/wagarimosisa-jit/aquavolc/issues/3">Create Upload Form</a></td>
+                    <td>Build a React form for uploading Excel files and GPS data</td>
+                    <td>3–5 days</td>
+                    <td>⭐⭐</td>
+                </tr>
+                <tr>
+                    <td><a href="https://github.com/wagarimosisa-jit/aquavolc/issues/4">Set Up PostGIS</a></td>
+                    <td>Configure PostgreSQL + PostGIS locally and test spatial queries</td>
+                    <td>2–3 days</td>
+                    <td>⭐⭐</td>
+                </tr>
+            </table>
+
+            <h3>🌍 For Hydrogeologists</h3>
+            <p><strong>No coding required!</strong> Your expertise is invaluable.</p>
+            <ul>
+                <li>Test AquaVolc with your datasets and <strong>report bugs</strong> or edge cases.</li>
+                <li>Provide <strong>anonymized well data</strong> (with GPS coordinates).</li>
+                <li>Review the <strong>scientific accuracy</strong> of our models.</li>
+                <li>Help design <strong>test cases</strong> for real-world scenarios.</li>
+                <li>Contribute to <strong>documentation</strong> (user guides, tutorials).</li>
+            </ul>
+            <p><strong>How to get started:</strong></p>
+            <ol>
+                <li>Try AquaVolc with your data (when available).</li>
+                <li>Open a <a href="https://github.com/wagarimosisa-jit/aquavolc/issues">GitHub Issue</a> to report bugs or suggest improvements.</li>
+                <li>Email me: <a href="mailto:wagari.mosisa@ju.edu.et">wagari.mosisa@ju.edu.et</a></li>
+            </ol>
+
+            <h3>📊 For Data Scientists</h3>
+            <p>Help us improve AquaVolc’s intelligence and accuracy!</p>
+            <ul>
+                <li>Train and refine the <strong>NLP model</strong> for lithology parsing.</li>
+                <li>Improve the <strong>Random Forest classifier</strong> for automatic solution detection.</li>
+                <li>Develop new <strong>ML models</strong> for parameter estimation.</li>
+                <li>Optimize <strong>kriging interpolation</strong> for spatial data.</li>
+            </ul>
+            <p><strong>How to get started:</strong></p>
+            <ol>
+                <li>Fork the repo and explore the <code>backend/ml/</code> directory.</li>
+                <li>Pick an ML-related issue from <a href="https://github.com/wagarimosisa-jit/aquavolc/issues">GitHub Issues</a>.</li>
+                <li>Email me: <a href="mailto:wagari.mosisa@ju.edu.et">wagari.mosisa@ju.edu.et</a></li>
+            </ol>
+        </div>
+
+        <!-- ===== PROJECT STATS ===== -->
+        <div class="section">
+            <h2 class="section-title">
+                <span class="section-title-icon">📊</span>Project Statistics
+            </h2>
+            <p><strong>Auto-updated badges showing our progress:</strong></p>
+            <div style="text-align: center; margin: 20px 0;">
+                <a href="https://github.com/wagarimosisa-jit/aquavolc/stargazers">
+                    <img src="https://img.shields.io/github/stars/wagarimosisa-jit/aquavolc?style=social" alt="GitHub Stars">
+                </a>
+                <a href="https://github.com/wagarimosisa-jit/aquavolc/network/members">
+                    <img src="https://img.shields.io/github/forks/wagarimosisa-jit/aquavolc?style=social" alt="GitHub Forks">
+                </a>
+                <a href="https://github.com/wagarimosisa-jit/aquavolc/issues">
+                    <img src="https://img.shields.io/github/issues/wagarimosisa-jit/aquavolc" alt="GitHub Issues">
+                </a>
+                <a href="https://github.com/wagarimosisa-jit/aquavolc/blob/main/LICENSE">
+                    <img src="https://img.shields.io/github/license/wagarimosisa-jit/aquavolc" alt="License">
+                </a>
+            </div>
+            <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-top: 30px;">
+                <img src="https://github-readme-stats.vercel.app/api?username=wagarimosisa-jit&repo=aquavolc&show_owner=true&theme=dark" alt="GitHub Stats">
+                <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=wagarimosisa-jit&repo=aquavolc&layout=compact&theme=dark" alt="Top Languages">
+            </div>
+        </div>
+
+        <!-- ===== CONTACT ===== -->
+        <div class="section">
+            <h2 class="section-title">
+                <span class="section-title-icon">📧</span>Contact Us
+            </h2>
+            <p><strong>Get in touch with the team:</strong></p>
+            <table>
+                <tr>
+                    <th>Role</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>LinkedIn</th>
+                </tr>
+                <tr>
+                    <td>Project Lead</td>
+                    <td>Wagari Mosisa</td>
+                    <td><a href="mailto:wagari.mosisa@ju.edu.et">wagari.mosisa@ju.edu.et</a></td>
+                    <td><a href="https://www.linkedin.com/in/wagari-mosisa-phd-9b50ab85/" target="_blank">linkedin.com/in/wagari-mosisa-phd-9b50ab85</a></td>
+                </tr>
+            </table>
+            <p style="margin-top: 20px;"><strong>🔗 Project Links:</strong></p>
+            <div class="header-buttons" style="justify-content: center; margin-top: 20px;">
+                <a href="https://github.com/wagarimosisa-jit/aquavolc" class="btn">📖 View on GitHub</a>
+                <a href="https://github.com/wagarimosisa-jit/aquavolc/wiki" class="btn">📚 Documentation</a>
+                <a href="https://github.com/wagarimosisa-jit/aquavolc/blob/main/CONTRIBUTING.md" class="btn">🤝 Contribute</a>
+                <a href="https://github.com/wagarimosisa-jit/aquavolc/issues/new/choose" class="btn">🐛 Report a Bug</a>
+                <a href="mailto:wagari.mosisa@ju.edu.et?subject=Slack%20Invite%20for%20AquaVolc" class="btn btn-primary">💬 Join Slack</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <footer>
+        <div class="footer-links">
+            <a href="https://github.com/wagarimosisa-jit/aquavolc">GitHub</a>
+            <a href="https://github.com/wagarimosisa-jit/aquavolc/wiki">Documentation</a>
+            <a href="https://github.com/wagarimosisa-jit/aquavolc/blob/main/CONTRIBUTING.md">Contribute</a>
+            <a href="https://github.com/wagarimosisa-jit/aquavolc/blob/main/LICENSE">License</a>
+            <a href="mailto:wagari.mosisa@ju.edu.et">Contact</a>
+        </div>
+        <p>© 2026 AquaVolc. Open-source under the <a href="https://github.com/wagarimosisa-jit/aquavolc/blob/main/LICENSE" target="_blank">MIT License</a>.</p>
+        <p>Designed with ❤️ for the global hydrogeology community.</p>
+    </footer>
+</body>
+</html>
