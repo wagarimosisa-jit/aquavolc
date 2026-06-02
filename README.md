@@ -2,7 +2,7 @@ AquaVolc: Open-Source Groundwater Modeling for Volcanic Aquifers
 
 Contributing to AquaVolc
 
-Thank you for your interest in **AquaVolc**! This project aims to revolutionize groundwater modeling for **volcanic aquifers**—a critical resource for **200+ million people globally**. Your contributions, whether as a **developer, hydrogeologist, or data scientist**, will help bring **clean, reliable water** to communities that need it most.
+Thank you for your interest in **AquaVolc**! This project aims to revolutionize groundwater modeling for **volcanic aquifers**-a critical resource for **200+ million people globally**. Your contributions, whether as a **developer, hydrogeologist, or data scientist**, will help bring **clean, reliable water** to communities that need it most.
 
  **Why AquaVolc?**
 Volcanic aquifers are **notoriously complex** due to:
@@ -11,12 +11,12 @@ Volcanic aquifers are **notoriously complex** due to:
 - **Limited data availability** (single-well pumping tests are the norm in developing countries).
 
 AquaVolc addresses these challenges by providing:
-1. **GPS Enforcement** – Every data upload **requires latitude, longitude, and elevation** to ensure spatial integrity.
-2. **Google Earth Integration** – Users **visualize and verify well locations** on satellite imagery in real time.
-3. **Single-Well Pumping Test Support** – Estimates transmissivity (T) from specific capacity (SC) using the **empirically derived relationship**:
-   > **log₁₀(T) = 0.98 × log₁₀(SC) – 0.06** *(R² = 0.89, validated on the Jimma dataset, Ethiopia)*
-4. **Multi-Well Test Handling** – Supports **≥2 observation wells**, each with its own GPS coordinates.
-5. **Expanded Analytical Solutions Library** – **20+ solutions**, including:
+1. **GPS Enforcement** - Every data upload **requires latitude, longitude, and elevation** to ensure spatial integrity.
+2. **Google Earth Integration** - Users **visualize and verify well locations** on satellite imagery in real time.
+3. **Single-Well Pumping Test Support** - Estimates transmissivity (T) from specific capacity (SC) using the **empirically derived relationship**:
+   > **log₁₀(T) = 0.98 × log₁₀(SC) - 0.06** *(R² = 0.89, validated on the Jimma dataset, Ethiopia)*
+4. **Multi-Well Test Handling** - Supports **≥2 observation wells**, each with its own GPS coordinates.
+5. **Expanded Analytical Solutions Library** - **20+ solutions**, including:
    - Theis (1935)
    - Cooper-Jacob (1946)
    - Hantush-Jacob (1955)
@@ -28,8 +28,8 @@ AquaVolc addresses these challenges by providing:
    - Gringarten (1982)
    - Papadopulos-Cooper (1967)
    - And more...
-6. **Automatic Solution Detection** – Uses a **hybrid rule-based + Random Forest ML classifier** (trained on 10,000 synthetic pumping tests) to recommend the best analytical solution.
-7. **NLP-Powered Lithology Parsing** – Automatically converts **free-text drilling logs** into structured aquifer/aquitard layers.
+6. **Automatic Solution Detection** - Uses a **hybrid rule-based + Random Forest ML classifier** (trained on 10,000 synthetic pumping tests) to recommend the best analytical solution.
+7. **NLP-Powered Lithology Parsing** - Automatically converts **free-text drilling logs** into structured aquifer/aquitard layers.
 8. **Web-Based Interpolation** – Temporal and spatial **kriging** for climate data, piezometric surfaces, and hydraulic parameters.
 9. **High-Resolution Exports** – Generate **600 DPI PNGs, SVG vector graphics, and PDF reports**.
 
